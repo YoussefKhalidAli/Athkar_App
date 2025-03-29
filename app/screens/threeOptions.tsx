@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import {
   PanGestureHandler,
@@ -129,17 +130,27 @@ export default function RememberanceViewer({
             animationType="slide"
             onRequestClose={() => setModalVisible(false)}
           >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalText}>{modalMessage}</Text>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={styles.button}
-                >
-                  <Text style={styles.buttonText}>إغلاق</Text>
-                </TouchableOpacity>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setModalVisible(false);
+                setSelectedButton(null);
+              }}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>{modalMessage}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(false);
+                      setSelectedButton(null);
+                    }}
+                    style={styles.button}
+                  >
+                    <Text style={styles.buttonText}>إغلاق</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           </Modal>
         </View>
       </PanGestureHandler>
@@ -176,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     width: "100%",
-    maxHeight: "80%",
+    maxHeight: "90%",
   },
   arabic: {
     color: "#FFFFFF",

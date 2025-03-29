@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import {
   PanGestureHandler,
@@ -133,17 +134,27 @@ export default function RememberanceViewer({
             </View>
           )}
           <Modal visible={modalVisible} transparent animationType="slide">
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalText}>{modalMessage}</Text>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Text style={styles.closeButtonText}>إغلاق</Text>
-                </TouchableOpacity>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setModalVisible(false);
+                setSelectedButton(null);
+              }}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>{modalMessage}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(false);
+                      setSelectedButton(null);
+                    }}
+                    style={styles.closeButton}
+                  >
+                    <Text style={styles.closeButtonText}>إغلاق</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           </Modal>
         </View>
       </PanGestureHandler>
@@ -158,7 +169,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  header: { width: "100%", alignItems: "center" },
+  header: { width: "100%", marginVertical: "10%", alignItems: "center" },
   title: {
     marginTop: "10%",
     color: "#FF4B4B",
@@ -182,6 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     width: "100%",
+    maxHeight: "90%",
   },
   arabic: { color: "#FFFFFF", fontSize: 22, textAlign: "center" },
   button: {

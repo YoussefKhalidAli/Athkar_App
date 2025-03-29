@@ -6,11 +6,12 @@ import {
   ScrollView,
   Modal,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import {
   PanGestureHandler,
-  PanGestureHandlerGestureEvent,
   GestureHandlerRootView,
+  State,
 } from "react-native-gesture-handler";
 
 interface RememberanceItem {
@@ -29,17 +30,23 @@ export default function RememberanceViewer({
   rememberance,
   option,
 }: RememberanceViewerProps) {
-  const scrollViewRef = useRef<ScrollView>(null);
   const [rememberanceIndex, setRememberanceIndex] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const lastSwipeTime = useRef(0);
 
-  const handleSwipe = (event: PanGestureHandlerGestureEvent) => {
-    const { translationX } = event.nativeEvent;
+  const handleSwipe = (event: any) => {
+    const { translationX, velocityX, state } = event.nativeEvent;
+    if (state !== State.END) return;
+
+    const now = Date.now();
+    if (now - lastSwipeTime.current < 300) return;
+    lastSwipeTime.current = now;
+
     setRememberanceIndex((prevIndex) => {
-      if (translationX < -50) {
-        return (prevIndex + 1) % rememberance.length;
-      } else if (translationX > 50) {
-        return prevIndex === 0 ? rememberance.length - 1 : prevIndex - 1;
+      if (translationX < -30 && velocityX < -300) {
+        return (prevIndex + 1) % rememberance.length; // Swipe left
+      } else if (translationX > 30 && velocityX > 300) {
+        return prevIndex === 0 ? rememberance.length - 1 : prevIndex - 1; // Swipe right
       }
       return prevIndex;
     });
@@ -47,32 +54,18 @@ export default function RememberanceViewer({
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PanGestureHandler
-        onGestureEvent={handleSwipe}
-        activeOffsetX={[-10, 10]} // Prevents horizontal swipes from interfering with vertical scrolling
-        simultaneousHandlers={scrollViewRef} // Allow both gestures to work together
-      >
+      <PanGestureHandler onHandlerStateChange={handleSwipe}>
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              {rememberance[rememberanceIndex].title}
-            </Text>
-          </View>
-          <View style={styles.mainContent}>
-            <View style={styles.rememberanceBox}>
-              <GestureHandlerRootView>
-                <ScrollView
-                  ref={scrollViewRef}
-                  contentContainerStyle={styles.scrollContainer}
-                  nestedScrollEnabled={true} // Enable inner scrolling
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Text style={styles.arabic}>
-                    {rememberance[rememberanceIndex].content}
-                  </Text>
-                </ScrollView>
-              </GestureHandlerRootView>
-            </View>
+          <Text style={styles.title}>
+            {rememberance[rememberanceIndex].title}
+          </Text>
+
+          <View style={styles.rememberanceBox}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              <Text style={styles.arabic}>
+                {rememberance[rememberanceIndex].content}
+              </Text>
+            </ScrollView>
           </View>
 
           {(rememberance[rememberanceIndex].note ||
@@ -91,20 +84,22 @@ export default function RememberanceViewer({
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
           >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalText}>
-                  {rememberance[rememberanceIndex].note ||
-                    rememberance[rememberanceIndex].virtue}
-                </Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.closeButtonText}>أغلق</Text>
-                </TouchableOpacity>
+            <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    {rememberance[rememberanceIndex].note ||
+                      rememberance[rememberanceIndex].virtue}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.closeButtonText}>أغلق</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           </Modal>
         </View>
       </PanGestureHandler>
@@ -122,41 +117,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0D1117",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  header: {
-    width: "100%",
-    alignItems: "center",
   },
   title: {
-    marginTop: "1%",
     color: "#FF4B4B",
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: "5%",
     textAlign: "center",
-  },
-  mainContent: {
-    width: "100%",
-    height: "70%",
-    alignItems: "center",
   },
   rememberanceBox: {
     backgroundColor: "#161B22",
-    marginVertical: "5%",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
     width: "100%",
-    height: "90%",
+    maxHeight: "60%",
   },
   arabic: {
     color: "#FFFFFF",
     fontSize: 22,
     textAlign: "center",
-    marginBottom: 5,
   },
   toggleButton: {
     padding: 12,
@@ -185,7 +167,6 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
-    marginBottom: 10,
     textAlign: "center",
   },
   closeButton: {
@@ -198,10 +179,5 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-  },
-  childrenContainer: {
-    marginTop: 20,
-    width: "100%",
-    alignItems: "center",
   },
 });
