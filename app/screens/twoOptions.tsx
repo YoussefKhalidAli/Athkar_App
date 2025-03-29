@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
   GestureHandlerRootView,
+  TapGestureHandler,
 } from "react-native-gesture-handler";
 
 type ButtonType = "note" | "virtue" | null;
@@ -31,6 +32,8 @@ type RememberanceViewerProps = {
 export default function RememberanceViewer({
   rememberances,
 }: RememberanceViewerProps) {
+  const scrollContainer = useRef<ScrollView>(null);
+
   const [selectedButton, setSelectedButton] = useState<ButtonType>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -83,7 +86,11 @@ export default function RememberanceViewer({
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PanGestureHandler onHandlerStateChange={handleSwipe}>
+      <PanGestureHandler
+        onHandlerStateChange={handleSwipe}
+        waitFor={scrollContainer}
+        activeOffsetX={[-10, 10]}
+      >
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.subtitle}>
@@ -92,11 +99,16 @@ export default function RememberanceViewer({
           </View>
           <View style={styles.mainContent}>
             <View style={styles.rememberanceBox}>
-              <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <Text style={styles.arabic}>
-                  {rememberances[rememberanceIndex].content}
-                </Text>
-              </ScrollView>
+              <TapGestureHandler>
+                <ScrollView
+                  contentContainerStyle={styles.scrollContainer}
+                  ref={scrollContainer}
+                >
+                  <Text style={styles.arabic}>
+                    {rememberances[rememberanceIndex].content}
+                  </Text>
+                </ScrollView>
+              </TapGestureHandler>
             </View>
 
             <TouchableOpacity
@@ -182,6 +194,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 20,
+    flexGrow: 1,
   },
   countButton: {
     width: "50%",
@@ -194,6 +207,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     maxHeight: "90%",
+    flex: 1,
   },
   arabic: { color: "#FFFFFF", fontSize: 22, textAlign: "center" },
   button: {
@@ -208,6 +222,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     marginTop: "auto",
+    marginBottom: 20,
   },
   toggleButton: {
     flex: 1,

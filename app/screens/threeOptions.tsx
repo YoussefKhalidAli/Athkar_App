@@ -67,7 +67,10 @@ export default function RememberanceViewer({
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PanGestureHandler onHandlerStateChange={handleSwipe}>
+      <PanGestureHandler
+        onHandlerStateChange={handleSwipe}
+        activeOffsetX={[-10, 10]}
+      >
         <View style={styles.container}>
           {rememberances[rememberanceIndex].title ? (
             <View style={styles.header}>

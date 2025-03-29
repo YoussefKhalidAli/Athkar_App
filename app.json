@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Athkar",
-    "slug": "Athkar",
+    "name": "مقاليد السموات والارض",
+    "slug": "مقاليد السموات والارض",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/Ka'ba.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Ka'ba.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

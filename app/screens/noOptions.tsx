@@ -34,7 +34,10 @@ const RememberanceViewer: React.FC<RememberancesViewerProps> = ({
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PanGestureHandler onHandlerStateChange={handleSwipe}>
+      <PanGestureHandler
+        onHandlerStateChange={handleSwipe}
+        activeOffsetX={[-10, 10]}
+      >
         <View style={styles.container}>
           <Text style={styles.title}>
             {rememberances[rememberanceIndex]?.title}
